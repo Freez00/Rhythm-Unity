@@ -14,23 +14,37 @@ namespace TarodevController
         public Vector3 RawMovement { get; private set; }
         public bool Grounded => _colDown;
 
+        public bool CanDouble = false;
+
+        public bool _isDashing;
+
+        public float fallSpeed;
+
         private Vector3 _lastPosition;
-        private float _currentHorizontalSpeed, _currentVerticalSpeed;
+        public float _currentHorizontalSpeed, _currentVerticalSpeed;
 
         // This is horrible, but for some reason colliders are not fully established when update starts...
         private bool _active;
         void Awake() => Invoke(nameof(Activate), 0.5f);
         void Activate() => _active = true;
 
+        public void SetDash(bool isDashing)
+        {
+            _isDashing = isDashing;
+        }
+
         private void Update()
         {
+            if (_isDashing) return;
             if (!_active) return;
             // Calculate velocity
             Velocity = (transform.position - _lastPosition) / Time.deltaTime;
             _lastPosition = transform.position;
 
+
             GatherInput();
             RunCollisionChecks();
+            if (Grounded) CanDouble = false;
 
             CalculateWalk(); // Horizontal movement
             CalculateJumpApex(); // Affects fall speed, so calculate before gravity
@@ -206,7 +220,7 @@ namespace TarodevController
             else
             {
                 // Add downward force while ascending if we ended the jump early
-                var fallSpeed = _endedJumpEarly && _currentVerticalSpeed > 0 ? _fallSpeed * _jumpEndEarlyGravityModifier : _fallSpeed;
+                fallSpeed = _endedJumpEarly && _currentVerticalSpeed > 0 ? _fallSpeed * _jumpEndEarlyGravityModifier : _fallSpeed;
 
                 // Fall
                 _currentVerticalSpeed -= fallSpeed * Time.deltaTime;
@@ -246,11 +260,30 @@ namespace TarodevController
             }
         }
 
-        private void CalculateJump()
+		/*private void OnTriggerEnter2D(Collider2D collision)
+		{
+			if (collision.GetComponent<Collider2D>().tag == "Target")
+			{
+                Debug.Log("Target passed");
+                CanDouble = true;
+                
+			}
+		}*/
+		/*private void OnCollisionEnter2D(Collision2D collision)
+		{
+	        if(collision.collider.tag == "Target")
+			{
+                Debug.Log("Target hit");
+			}
+		}*/
+        public void GiveJump() => CanDouble = true;
+		private void CalculateJump()
         {
             // Jump if: grounded or within coyote threshold || sufficient jump buffer
-            if (Input.JumpDown && CanUseCoyote || HasBufferedJump)
+            if ((Input.JumpDown && CanUseCoyote || HasBufferedJump) || ((Input.JumpDown || HasBufferedJump) && CanDouble))
             {
+                CanDouble = false;  
+                
                 _currentVerticalSpeed = _jumpHeight;
                 _endedJumpEarly = false;
                 _coyoteUsable = false;

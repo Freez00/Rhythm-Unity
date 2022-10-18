@@ -3,7 +3,13 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
+<<<<<<< Updated upstream
   tags: []
+=======
+  tags:
+  - Passthrough
+  - Target
+>>>>>>> Stashed changes
   layers:
   - Default
   - TransparentFX
@@ -32,7 +38,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - Player
   - 
   - 
   - 
@@ -41,3 +47,15 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+<<<<<<< Updated upstream
+=======
+  - name: PassThrough Ground
+    uniqueID: 2760912285
+    locked: 0
+  - name: Player
+    uniqueID: 1853915089
+    locked: 0
+  - name: Trail
+    uniqueID: 357371415
+    locked: 0
+>>>>>>> Stashed changes
